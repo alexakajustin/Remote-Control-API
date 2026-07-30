@@ -1,0 +1,40 @@
+[2026-07-30 11:20:58.720005 +03:00] INFO [src\relay_server.rs:61] #blacklist(blacklist.txt): 0
+[2026-07-30 11:20:58.720068 +03:00] INFO [src\relay_server.rs:76] #blocklist(blocklist.txt): 0
+[2026-07-30 11:20:58.720070 +03:00] INFO [src\relay_server.rs:82] Listening on tcp :21117
+[2026-07-30 11:20:58.720090 +03:00] INFO [src\relay_server.rs:84] Listening on websocket :21119
+[2026-07-30 11:20:58.720091 +03:00] INFO [src\relay_server.rs:87] Start
+[2026-07-30 11:20:58.721634 +03:00] INFO [src\relay_server.rs:105] DOWNGRADE_THRESHOLD: 0.66
+[2026-07-30 11:20:58.721662 +03:00] INFO [src\relay_server.rs:115] DOWNGRADE_START_CHECK: 1800s
+[2026-07-30 11:20:58.721664 +03:00] INFO [src\relay_server.rs:125] LIMIT_SPEED: 32Mb/s
+[2026-07-30 11:20:58.721665 +03:00] INFO [src\relay_server.rs:136] TOTAL_BANDWIDTH: 1024Mb/s
+[2026-07-30 11:20:58.721670 +03:00] INFO [src\relay_server.rs:146] SINGLE_BANDWIDTH: 128Mb/s
+[2026-07-30 11:26:55.724642 +03:00] INFO [src\relay_server.rs:61] #blacklist(blacklist.txt): 0
+[2026-07-30 11:26:55.724693 +03:00] INFO [src\relay_server.rs:76] #blocklist(blocklist.txt): 0
+[2026-07-30 11:26:55.724696 +03:00] INFO [src\relay_server.rs:82] Listening on tcp :21117
+[2026-07-30 11:26:55.724701 +03:00] INFO [src\relay_server.rs:84] Listening on websocket :21119
+[2026-07-30 11:26:55.724702 +03:00] INFO [src\relay_server.rs:87] Start
+[2026-07-30 11:26:55.726715 +03:00] INFO [src\relay_server.rs:105] DOWNGRADE_THRESHOLD: 0.66
+[2026-07-30 11:26:55.726744 +03:00] INFO [src\relay_server.rs:115] DOWNGRADE_START_CHECK: 1800s
+[2026-07-30 11:26:55.726747 +03:00] INFO [src\relay_server.rs:125] LIMIT_SPEED: 32Mb/s
+[2026-07-30 11:26:55.726750 +03:00] INFO [src\relay_server.rs:136] TOTAL_BANDWIDTH: 1024Mb/s
+[2026-07-30 11:26:55.726754 +03:00] INFO [src\relay_server.rs:146] SINGLE_BANDWIDTH: 128Mb/s
+[2026-07-30 12:02:21.920449 +03:00] INFO [src\relay_server.rs:61] #blacklist(blacklist.txt): 0
+[2026-07-30 12:02:21.920510 +03:00] INFO [src\relay_server.rs:76] #blocklist(blocklist.txt): 0
+[2026-07-30 12:02:21.920513 +03:00] INFO [src\relay_server.rs:82] Listening on tcp :21117
+[2026-07-30 12:02:21.920517 +03:00] INFO [src\relay_server.rs:84] Listening on websocket :21119
+[2026-07-30 12:02:21.920519 +03:00] INFO [src\relay_server.rs:87] Start
+[2026-07-30 12:02:21.923137 +03:00] INFO [src\relay_server.rs:105] DOWNGRADE_THRESHOLD: 0.66
+[2026-07-30 12:02:21.923173 +03:00] INFO [src\relay_server.rs:115] DOWNGRADE_START_CHECK: 1800s
+[2026-07-30 12:02:21.923175 +03:00] INFO [src\relay_server.rs:125] LIMIT_SPEED: 32Mb/s
+[2026-07-30 12:02:21.923178 +03:00] INFO [src\relay_server.rs:136] TOTAL_BANDWIDTH: 1024Mb/s
+[2026-07-30 12:02:21.923182 +03:00] INFO [src\relay_server.rs:146] SINGLE_BANDWIDTH: 128Mb/s
+[2026-07-30 12:02:33.140874 +03:00] INFO [src\relay_server.rs:61] #blacklist(blacklist.txt): 0
+[2026-07-30 12:02:33.140917 +03:00] INFO [src\relay_server.rs:76] #blocklist(blocklist.txt): 0
+[2026-07-30 12:02:33.140919 +03:00] INFO [src\relay_server.rs:82] Listening on tcp :21117
+[2026-07-30 12:02:33.140922 +03:00] INFO [src\relay_server.rs:84] Listening on websocket :21119
+[2026-07-30 12:02:33.140923 +03:00] INFO [src\relay_server.rs:87] Start
+[2026-07-30 12:02:33.142657 +03:00] INFO [src\relay_server.rs:105] DOWNGRADE_THRESHOLD: 0.66
+[2026-07-30 12:02:33.142687 +03:00] INFO [src\relay_server.rs:115] DOWNGRADE_START_CHECK: 1800s
+[2026-07-30 12:02:33.142689 +03:00] INFO [src\relay_server.rs:125] LIMIT_SPEED: 32Mb/s
+[2026-07-30 12:02:33.142692 +03:00] INFO [src\relay_server.rs:136] TOTAL_BANDWIDTH: 1024Mb/s
+[2026-07-30 12:02:33.142695 +03:00] INFO [src\relay_server.rs:146] SINGLE_BANDWIDTH: 128Mb/s

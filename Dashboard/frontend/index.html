@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RustDesk Server — Admin Dashboard</title>
+    <meta name="description" content="RustDesk API Server admin dashboard — monitor devices, connections, users, and audit logs">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥</text></svg>">
+</head>
+<body>
+
+<!-- ═══ Login Overlay ═══ -->
+<div class="login-overlay" id="loginOverlay">
+    <div class="login-card">
+        <h1>🖥 RustDesk Server</h1>
+        <p class="subtitle">Admin Dashboard — Sign In</p>
+        <div class="error-msg" id="loginError"></div>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="loginUsername">Username</label>
+                <input type="text" id="loginUsername" placeholder="admin" autocomplete="username" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full" id="loginBtn">Sign In</button>
+        </form>
+    </div>
+</div>
+
+<!-- ═══ Header ═══ -->
+<header class="header" id="appHeader" style="display:none">
+    <div class="header-left">
+        <span class="header-logo">🖥 RustDesk Server</span>
+        <div class="header-divider"></div>
+        <div class="server-status">
+            <div class="status-item">
+                <span class="status-dot" id="hbbsStatus"></span>
+                <span>hbbs</span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot" id="hbbrStatus"></span>
+                <span>hbbr</span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot" id="apiStatus"></span>
+                <span>API</span>
+            </div>
+        </div>
+    </div>
+    <div class="header-right">
+        <span class="uptime-badge" id="uptimeBadge">⏱ 00:00:00</span>
+        <div class="user-badge">
+            <span class="user-avatar" id="userAvatar">A</span>
+            <span id="userName">admin</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="handleLogout()">Logout</button>
+    </div>
+</header>
+
+<!-- ═══ Navigation Tabs ═══ -->
+<nav class="nav-tabs" id="navTabs" style="display:none">
+    <button class="nav-tab active" data-tab="overview" onclick="switchTab('overview')">📊 Overview</button>
+    <button class="nav-tab" data-tab="devices" onclick="switchTab('devices')">💻 Devices</button>
+    <button class="nav-tab" data-tab="connections" onclick="switchTab('connections')">🔗 Connections</button>
+    <button class="nav-tab" data-tab="audit" onclick="switchTab('audit')">📋 Audit Log</button>
+    <button class="nav-tab" data-tab="logs" onclick="switchTab('logs')">🖥 Server Log</button>
+</nav>
+
+<!-- ═══ Main Content ═══ -->
+<main class="main-content" id="mainContent" style="display:none">
+
+    <!-- ─── Overview Tab ─── -->
+    <div class="tab-panel active" id="tab-overview">
+        <div class="kpi-grid">
+            <div class="kpi-card cyan">
+                <div class="kpi-label">Online Devices</div>
+                <div class="kpi-value" id="kpiOnline">0</div>
+            </div>
+            <div class="kpi-card emerald">
+                <div class="kpi-label">Total Devices</div>
+                <div class="kpi-value" id="kpiTotal">0</div>
+            </div>
+            <div class="kpi-card amber">
+                <div class="kpi-label">Connections Today</div>
+                <div class="kpi-value" id="kpiConnections">0</div>
+            </div>
+            <div class="kpi-card red">
+                <div class="kpi-label">Active Sessions</div>
+                <div class="kpi-value" id="kpiSessions">0</div>
+            </div>
+        </div>
+
+        <!-- Network Topology -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">🌐 Network Topology</span>
+            </div>
+            <div class="section-body no-pad">
+                <div class="topology-container" id="topologyContainer">
+                    <canvas id="topologyCanvas"></canvas>
+                    <div class="topology-empty" id="topologyEmpty">
+                        <div class="icon">🌐</div>
+                        <p>Devices will appear here when they connect</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">⚡ Recent Activity</span>
+            </div>
+            <div class="section-body no-pad">
+                <div class="log-terminal" id="recentActivity" style="max-height: 200px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── Devices Tab ─── -->
+    <div class="tab-panel" id="tab-devices">
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">💻 Registered Devices</span>
+                <div class="section-actions">
+                    <div class="search-bar">
+                        <input type="search" id="deviceSearch" placeholder="Search devices..." oninput="filterDevices()">
+                    </div>
+                    <button class="btn btn-secondary btn-sm" onclick="refreshDevices()">↻ Refresh</button>
+                </div>
+            </div>
+            <div class="section-body no-pad">
+                <table class="data-table" id="devicesTable">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>RustDesk ID</th>
+                            <th>Hostname</th>
+                            <th>OS</th>
+                            <th>IP Address</th>
+                            <th>Version</th>
+                            <th>Last Seen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="devicesBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── Connections Tab ─── -->
+    <div class="tab-panel" id="tab-connections">
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">🔗 Connection History — Who Connected to Who</span>
+                <div class="section-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="refreshConnections()">↻ Refresh</button>
+                </div>
+            </div>
+            <div class="section-body no-pad">
+                <table class="data-table" id="connectionsTable">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Action</th>
+                            <th>Connection</th>
+                            <th>Source IP</th>
+                            <th>Target IP</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody id="connectionsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── Audit Tab ─── -->
+    <div class="tab-panel" id="tab-audit">
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">📋 Audit Trail</span>
+                <div class="section-actions">
+                    <select id="auditFilter" onchange="refreshAudit()">
+                        <option value="">All Events</option>
+                        <option value="new_conn">New Connection</option>
+                        <option value="close_conn">Close Connection</option>
+                        <option value="connect">Connect</option>
+                        <option value="disconnect">Disconnect</option>
+                        <option value="file_transfer">File Transfer</option>
+                    </select>
+                    <button class="btn btn-secondary btn-sm" onclick="refreshAudit()">↻ Refresh</button>
+                </div>
+            </div>
+            <div class="section-body no-pad">
+                <table class="data-table" id="auditTable">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Action</th>
+                            <th>Source</th>
+                            <th>Target</th>
+                            <th>IP</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── Server Log Tab ─── -->
+    <div class="tab-panel" id="tab-logs">
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">🖥 Server Event Log</span>
+                <div class="section-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="refreshLogs()">↻ Refresh</button>
+                </div>
+            </div>
+            <div class="section-body no-pad">
+                <div class="log-terminal" id="serverLog"></div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+[2026-07-30 11:20:57.128993 +03:00] INFO [src\common.rs:147] Private/public key written to id_ed25519/id_ed25519.pub
+[2026-07-30 11:20:57.129188 +03:00] INFO [src\rendezvous_server.rs:1243] Key: FjtgSgzAErG3N70El519PY2VZtgMNnRRQN+v2dZWnmo=
+[2026-07-30 11:20:57.133308 +03:00] INFO [src\peer.rs:84] DB_URL=C:\WINDOWS\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\db_v2.sqlite3
+[2026-07-30 11:20:57.149168 +03:00] INFO [src\rendezvous_server.rs:107] serial=0
+[2026-07-30 11:20:57.149193 +03:00] INFO [src\common.rs:45] rendezvous-servers=[]
+[2026-07-30 11:20:57.149198 +03:00] INFO [src\rendezvous_server.rs:109] Listening on tcp/udp :21116
+[2026-07-30 11:20:57.149199 +03:00] INFO [src\rendezvous_server.rs:110] Listening on tcp :21115, extra port for NAT test
+[2026-07-30 11:20:57.149200 +03:00] INFO [src\rendezvous_server.rs:111] Listening on websocket :21118
+[2026-07-30 11:20:57.150763 +03:00] INFO [src\rendezvous_server.rs:146] mask: None
+[2026-07-30 11:20:57.150772 +03:00] INFO [src\rendezvous_server.rs:147] local-ip: ""
+[2026-07-30 11:20:57.150810 +03:00] INFO [src\common.rs:45] relay-servers=[]
+[2026-07-30 11:20:57.151250 +03:00] INFO [src\rendezvous_server.rs:161] ALWAYS_USE_RELAY=N
+[2026-07-30 11:20:57.151278 +03:00] INFO [src\rendezvous_server.rs:193] Start
+[2026-07-30 11:23:46.721041 +03:00] INFO [src\peer.rs:102] update_pk 495722693 [::ffff:192.168.99.177]:63690 b"4609b9b5-0d13-4d2e-b2f3-04628343f5e9" b"Q\xd3\xe1\x0c\x86\rLD\xa5i\xe7\x06\xca\x1c\x9b\xa2\xd6T\x9e\x12\xc95\r\xfd\x08{\xaf\x8c\x0f#N\x89"
+[2026-07-30 11:26:54.222268 +03:00] INFO [src\common.rs:121] Private key comes from id_ed25519
+[2026-07-30 11:26:54.222306 +03:00] INFO [src\rendezvous_server.rs:1243] Key: FjtgSgzAErG3N70El519PY2VZtgMNnRRQN+v2dZWnmo=
+[2026-07-30 11:26:54.224723 +03:00] INFO [src\peer.rs:84] DB_URL=C:\WINDOWS\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\db_v2.sqlite3
+[2026-07-30 11:26:54.233758 +03:00] INFO [src\rendezvous_server.rs:107] serial=0
+[2026-07-30 11:26:54.233770 +03:00] INFO [src\common.rs:45] rendezvous-servers=[]
+[2026-07-30 11:26:54.233774 +03:00] INFO [src\rendezvous_server.rs:109] Listening on tcp/udp :21116
+[2026-07-30 11:26:54.233775 +03:00] INFO [src\rendezvous_server.rs:110] Listening on tcp :21115, extra port for NAT test
+[2026-07-30 11:26:54.233775 +03:00] INFO [src\rendezvous_server.rs:111] Listening on websocket :21118
+[2026-07-30 11:26:54.235315 +03:00] INFO [src\rendezvous_server.rs:146] mask: None
+[2026-07-30 11:26:54.235326 +03:00] INFO [src\rendezvous_server.rs:147] local-ip: ""
+[2026-07-30 11:26:54.235352 +03:00] INFO [src\common.rs:45] relay-servers=[]
+[2026-07-30 11:26:54.235934 +03:00] INFO [src\rendezvous_server.rs:161] ALWAYS_USE_RELAY=N
+[2026-07-30 11:26:54.235967 +03:00] INFO [src\rendezvous_server.rs:193] Start
+[2026-07-30 11:47:58.723466 +03:00] INFO [src\peer.rs:102] update_pk 471872649 [::ffff:192.168.99.97]:41043 b"e0c99e74b9cf48309865f524aa415484" b"L1\\S\xda\0\n\xa8(\x8e\xcc\xbf\xee\xabx\x80\xb6\xeb\xa2\0d\xaa\xeaE\x85,\x11\x88\xfc\xdd\x7f/"
+[2026-07-30 11:50:59.965521 +03:00] WARN [src\rendezvous_server.rs:683] Authentication failed from [::ffff:192.168.99.97]:41969 for peer 471872649 - invalid key
+[2026-07-30 11:51:03.551870 +03:00] WARN [src\rendezvous_server.rs:683] Authentication failed from [::ffff:192.168.99.97]:42077 for peer 471872649 - invalid key
+[2026-07-30 11:51:14.763632 +03:00] WARN [src\rendezvous_server.rs:683] Authentication failed from [::ffff:192.168.99.177]:52115 for peer 471872649 - invalid key
+[2026-07-30 11:51:35.003019 +03:00] WARN [src\rendezvous_server.rs:683] Authentication failed from [::ffff:192.168.99.177]:36355 for peer 471872649 - invalid key
+[2026-07-30 11:52:03.159462 +03:00] WARN [src\rendezvous_server.rs:683] Authentication failed from [::ffff:192.168.99.177]:36364 for peer 471872649 - invalid key
+[2026-07-30 11:52:49.368910 +03:00] WARN [src\rendezvous_server.rs:683] Authentication failed from [::ffff:192.168.99.177]:46739 for peer 471872649 - invalid key
+[2026-07-30 12:02:20.653453 +03:00] INFO [src\common.rs:121] Private key comes from id_ed25519
+[2026-07-30 12:02:20.653566 +03:00] INFO [src\rendezvous_server.rs:1243] Key: FjtgSgzAErG3N70El519PY2VZtgMNnRRQN+v2dZWnmo=
+[2026-07-30 12:02:20.659290 +03:00] INFO [src\peer.rs:84] DB_URL=C:\WINDOWS\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\db_v2.sqlite3
+[2026-07-30 12:02:20.682089 +03:00] INFO [src\rendezvous_server.rs:107] serial=0
+[2026-07-30 12:02:20.682108 +03:00] INFO [src\common.rs:45] rendezvous-servers=[]
+[2026-07-30 12:02:20.682113 +03:00] INFO [src\rendezvous_server.rs:109] Listening on tcp/udp :21116
+[2026-07-30 12:02:20.682114 +03:00] INFO [src\rendezvous_server.rs:110] Listening on tcp :21115, extra port for NAT test
+[2026-07-30 12:02:20.682116 +03:00] INFO [src\rendezvous_server.rs:111] Listening on websocket :21118
+[2026-07-30 12:02:20.684546 +03:00] INFO [src\rendezvous_server.rs:146] mask: None
+[2026-07-30 12:02:20.684562 +03:00] INFO [src\rendezvous_server.rs:147] local-ip: ""
+[2026-07-30 12:02:20.684586 +03:00] INFO [src\common.rs:45] relay-servers=[]
+[2026-07-30 12:02:20.685297 +03:00] INFO [src\rendezvous_server.rs:161] ALWAYS_USE_RELAY=N
+[2026-07-30 12:02:20.685328 +03:00] INFO [src\rendezvous_server.rs:193] Start
+[2026-07-30 12:02:31.893220 +03:00] INFO [src\common.rs:121] Private key comes from id_ed25519
+[2026-07-30 12:02:31.893280 +03:00] INFO [src\rendezvous_server.rs:1243] Key: FjtgSgzAErG3N70El519PY2VZtgMNnRRQN+v2dZWnmo=
+[2026-07-30 12:02:31.897133 +03:00] INFO [src\peer.rs:84] DB_URL=C:\WINDOWS\ServiceProfiles\LocalService\AppData\Roaming\RustDesk\config\db_v2.sqlite3
+[2026-07-30 12:02:31.910751 +03:00] INFO [src\rendezvous_server.rs:107] serial=0
+[2026-07-30 12:02:31.910771 +03:00] INFO [src\common.rs:45] rendezvous-servers=[]
+[2026-07-30 12:02:31.910777 +03:00] INFO [src\rendezvous_server.rs:109] Listening on tcp/udp :21116
+[2026-07-30 12:02:31.910778 +03:00] INFO [src\rendezvous_server.rs:110] Listening on tcp :21115, extra port for NAT test
+[2026-07-30 12:02:31.910780 +03:00] INFO [src\rendezvous_server.rs:111] Listening on websocket :21118
+[2026-07-30 12:02:31.912919 +03:00] INFO [src\rendezvous_server.rs:146] mask: None
+[2026-07-30 12:02:31.912930 +03:00] INFO [src\rendezvous_server.rs:147] local-ip: ""
+[2026-07-30 12:02:31.912953 +03:00] INFO [src\common.rs:45] relay-servers=[]
+[2026-07-30 12:02:31.913417 +03:00] INFO [src\rendezvous_server.rs:161] ALWAYS_USE_RELAY=N
+[2026-07-30 12:02:31.913453 +03:00] INFO [src\rendezvous_server.rs:193] Start
