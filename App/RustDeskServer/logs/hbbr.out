@@ -69,3 +69,32 @@
 [2026-07-30 13:52:49.339136 +03:00] INFO [src\relay_server.rs:453] New relay request 871377f4-13d5-4e04-8271-91eba18f2884 from [::ffff:192.168.99.92]:50782
 [2026-07-30 13:52:49.341307 +03:00] INFO [src\relay_server.rs:437] Relayrequest 871377f4-13d5-4e04-8271-91eba18f2884 from [::ffff:192.168.99.97]:37723 got paired
 [2026-07-30 13:52:49.341321 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 13:56:43.687782 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.97]:37723 closed
+[2026-07-30 14:24:35.868272 +03:00] INFO [src\relay_server.rs:453] New relay request 96f2248c-d029-4f9f-b4e6-caba1029253c from [::ffff:192.168.99.92]:51120
+[2026-07-30 14:24:35.869691 +03:00] INFO [src\relay_server.rs:437] Relayrequest 96f2248c-d029-4f9f-b4e6-caba1029253c from [::ffff:192.168.99.97]:44411 got paired
+[2026-07-30 14:24:35.869707 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 14:24:39.836201 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.97]:44411 closed
+[2026-07-30 15:07:46.728912 +03:00] INFO [src\relay_server.rs:453] New relay request 553eb9a0-9c92-41bf-b3f5-8ad4e44dbebf from [::ffff:192.168.99.97]:44827
+[2026-07-30 15:07:46.739283 +03:00] INFO [src\relay_server.rs:437] Relayrequest 553eb9a0-9c92-41bf-b3f5-8ad4e44dbebf from [::ffff:192.168.99.92]:50188 got paired
+[2026-07-30 15:07:46.739314 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 15:07:59.643285 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.92]:50188 closed
+[2026-07-30 15:20:19.527489 +03:00] INFO [src\relay_server.rs:453] New relay request 583b4cee-4c48-4f1a-9e25-f7b88b9bb5df from [::ffff:192.168.99.97]:42493
+[2026-07-30 15:20:19.534443 +03:00] INFO [src\relay_server.rs:437] Relayrequest 583b4cee-4c48-4f1a-9e25-f7b88b9bb5df from [::ffff:192.168.99.92]:50284 got paired
+[2026-07-30 15:20:19.534456 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 15:21:55.095964 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.92]:50284 closed
+[2026-07-30 15:23:15.409497 +03:00] INFO [src\relay_server.rs:453] New relay request b2423d2f-a256-4320-a73d-5fa3ac89db65 from [::ffff:192.168.99.97]:33187
+[2026-07-30 15:23:15.418306 +03:00] INFO [src\relay_server.rs:437] Relayrequest b2423d2f-a256-4320-a73d-5fa3ac89db65 from [::ffff:192.168.99.92]:50335 got paired
+[2026-07-30 15:23:15.418326 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 15:23:25.410012 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.92]:50335 closed
+[2026-07-30 15:23:54.953100 +03:00] INFO [src\relay_server.rs:453] New relay request bacf84bc-715e-47ba-8b79-1dfd9fbd79a3 from [::ffff:192.168.99.97]:46395
+[2026-07-30 15:23:54.953838 +03:00] INFO [src\relay_server.rs:437] Relayrequest bacf84bc-715e-47ba-8b79-1dfd9fbd79a3 from [::ffff:192.168.99.92]:50346 got paired
+[2026-07-30 15:23:54.953850 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 15:23:57.194323 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.92]:50346 closed
+[2026-07-30 15:23:58.249180 +03:00] INFO [src\relay_server.rs:453] New relay request 517b3c45-7cc7-4465-afc4-e0e8d52e19c4 from [::ffff:192.168.99.97]:46603
+[2026-07-30 15:23:58.255839 +03:00] INFO [src\relay_server.rs:437] Relayrequest 517b3c45-7cc7-4465-afc4-e0e8d52e19c4 from [::ffff:192.168.99.92]:50355 got paired
+[2026-07-30 15:23:58.255854 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 15:24:08.403119 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.92]:50355 closed
+[2026-07-30 15:24:09.840450 +03:00] INFO [src\relay_server.rs:453] New relay request d6ad6081-0935-4f90-b849-59b7a60e131f from [::ffff:192.168.99.92]:50365
+[2026-07-30 15:24:09.863939 +03:00] INFO [src\relay_server.rs:437] Relayrequest d6ad6081-0935-4f90-b849-59b7a60e131f from [::ffff:192.168.99.97]:39127 got paired
+[2026-07-30 15:24:09.863960 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 15:24:27.935870 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.97]:39127 closed

@@ -60,3 +60,4 @@
 [2026-07-30 12:02:31.913453 +03:00] INFO [src\rendezvous_server.rs:193] Start
 [2026-07-30 13:19:39.538256 +03:00] INFO [src\peer.rs:102] update_pk 162230963 [::ffff:192.168.99.93]:58027 b"70ed8eeb-0d31-4278-8e83-8e4568cbbe82" b"1\xfe\xe5\xc63PyQ\xael%\x1e\x0f\xd6\x932\xb1kt\xba\xb8\xe5\xb2\xefD\xb5\0\x14\xae}R\xb4"
 [2026-07-30 13:33:36.119593 +03:00] INFO [src\peer.rs:102] update_pk 152432018 [::ffff:192.168.99.92]:63535 b"70ed8eeb-0d31-4278-8e83-8e4568cbbe82" b"\x06\xea?\xd3\x96\xf5\x1a+\x7f?]Q\xa3\x84v\xe7\x80\x90\xce\xd3\xf2=\x8e&\xb8a\x01R-\x88\x03I"
+[2026-07-30 15:27:45.786601 +03:00] INFO [src\peer.rs:102] update_pk 164319218 [::ffff:192.168.99.94]:50931 b"71cf6b07-c8f7-4cca-b1d1-b872f10c44c5" b"\x04\x19\xa7:]\x84(K\xfe\xa0%\xa3\"!Z\xfa\x1c\xb9\x82\xb3\x1c\xf7\xe1R\x08P\xa4\x96?\x90\xc6L"
