@@ -418,6 +418,8 @@ input:focus, select:focus {
 .kpi-card.amber::before { background: linear-gradient(90deg, var(--accent-amber), transparent); }
 .kpi-card.purple::before { background: linear-gradient(90deg, var(--accent-purple), transparent); }
 .kpi-card.red::before { background: linear-gradient(90deg, var(--accent-red), transparent); }
+.kpi-card.rose::before { background: linear-gradient(90deg, #f43f5e, transparent); }
+.kpi-card.bg-slate::before { background: linear-gradient(90deg, #475569, transparent); }
 
 .kpi-card:hover {
     border-color: var(--border-hover);
@@ -446,6 +448,8 @@ input:focus, select:focus {
 .kpi-card.amber .kpi-value { color: var(--accent-amber); }
 .kpi-card.purple .kpi-value { color: var(--accent-purple); }
 .kpi-card.red .kpi-value { color: var(--accent-red); }
+.kpi-card.rose .kpi-value { color: #f43f5e; }
+.kpi-card.bg-slate .kpi-value { color: #cbd5e1; }
 
 /* ─── Section ─── */
 
@@ -551,6 +555,22 @@ input:focus, select:focus {
     background: rgba(100, 116, 139, 0.15);
     color: var(--text-muted);
     border: 1px solid rgba(100, 116, 139, 0.25);
+}
+
+.badge-busy {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.badge-busy::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-red);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+    animation: pulse-dot 2s ease-in-out infinite;
 }
 
 .badge-action {

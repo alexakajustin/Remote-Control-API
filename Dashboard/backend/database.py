@@ -56,6 +56,7 @@ def init_db():
                 uuid TEXT DEFAULT '',
                 user_id INTEGER,
                 hostname TEXT DEFAULT '',
+                custom_name TEXT DEFAULT '',
                 os TEXT DEFAULT '',
                 version TEXT DEFAULT '',
                 cpu TEXT DEFAULT '',
@@ -65,6 +66,11 @@ def init_db():
                 last_heartbeat REAL DEFAULT 0,
                 first_seen REAL NOT NULL,
                 info_json TEXT DEFAULT '{}',
+                check_ping INTEGER DEFAULT 1,
+                check_rdp INTEGER DEFAULT 0,
+                rdp_port INTEGER DEFAULT 3389,
+                status_ping TEXT DEFAULT 'unknown',
+                status_rdp TEXT DEFAULT 'unknown',
                 FOREIGN KEY (user_id) REFERENCES users(id)
             );
 
@@ -112,6 +118,20 @@ def init_db():
                 info_json TEXT DEFAULT '{}'
             );
 
+            CREATE TABLE IF NOT EXISTS monitored_endpoints (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                rustdesk_id TEXT DEFAULT '',
+                local_ip TEXT DEFAULT '',
+                rdp_port INTEGER DEFAULT 3389,
+                check_ping INTEGER DEFAULT 1,
+                check_rdp INTEGER DEFAULT 0,
+                status_ping TEXT DEFAULT 'unknown',
+                status_rdp TEXT DEFAULT 'unknown',
+                last_check REAL DEFAULT 0,
+                alerts_json TEXT DEFAULT '[]'
+            );
+
             CREATE INDEX IF NOT EXISTS idx_devices_status ON devices(status);
             CREATE INDEX IF NOT EXISTS idx_devices_user_id ON devices(user_id);
             CREATE INDEX IF NOT EXISTS idx_heartbeats_device_id ON heartbeats(device_id);
@@ -122,6 +142,20 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
             CREATE INDEX IF NOT EXISTS idx_address_books_user_id ON address_books(user_id);
         """)
+        
+        # Add new columns to devices if they don't exist
+        for col in [
+            "ADD COLUMN custom_name TEXT DEFAULT ''",
+            "ADD COLUMN check_ping INTEGER DEFAULT 1",
+            "ADD COLUMN check_rdp INTEGER DEFAULT 0",
+            "ADD COLUMN rdp_port INTEGER DEFAULT 3389",
+            "ADD COLUMN status_ping TEXT DEFAULT 'unknown'",
+            "ADD COLUMN status_rdp TEXT DEFAULT 'unknown'"
+        ]:
+            try:
+                conn.execute(f"ALTER TABLE devices {col}")
+            except sqlite3.OperationalError:
+                pass
 
 
 # ─── User Operations ───
@@ -203,12 +237,13 @@ def upsert_device(device_id: str, uuid: str = "", user_id: int = None, hostname:
 
 def get_all_devices():
     with get_db() as conn:
-        return conn.execute("SELECT * FROM devices ORDER BY last_heartbeat DESC").fetchall()
-
+        rows = conn.execute("SELECT * FROM devices ORDER BY last_heartbeat DESC").fetchall()
+        return [dict(r) for r in rows]
 
 def get_online_devices():
     with get_db() as conn:
-        return conn.execute("SELECT * FROM devices WHERE status = 'online' ORDER BY last_heartbeat DESC").fetchall()
+        rows = conn.execute("SELECT * FROM devices WHERE status = 'online' ORDER BY last_heartbeat DESC").fetchall()
+        return [dict(r) for r in rows]
 
 
 def mark_stale_devices(timeout_seconds: int = 90):
@@ -220,7 +255,8 @@ def mark_stale_devices(timeout_seconds: int = 90):
 
 def get_device_by_id(device_id: str):
     with get_db() as conn:
-        return conn.execute("SELECT * FROM devices WHERE id = ?", (device_id,)).fetchone()
+        row = conn.execute("SELECT * FROM devices WHERE id = ?", (device_id,)).fetchone()
+        return dict(row) if row else None
 
 
 # ─── Heartbeat Operations ───
@@ -333,13 +369,23 @@ def get_audit_logs(limit: int = 100, offset: int = 0, action: str = None):
 
 
 def get_connection_audit_logs(limit: int = 50):
-    """Get connection-type audit logs (who connected to who)."""
     with get_db() as conn:
-        return conn.execute("""
-            SELECT * FROM audit_logs 
-            WHERE action IN ('new_conn', 'close_conn', 'connect', 'disconnect', 'file_transfer')
-            ORDER BY timestamp DESC LIMIT ?
-        """, (limit,)).fetchall()
+        return [dict(row) for row in conn.execute("SELECT * FROM audit_logs WHERE action IN ('new_conn', 'close_conn', 'connect') ORDER BY timestamp DESC LIMIT ?", (limit,)).fetchall()]
+
+def get_active_connections():
+    """Returns a list of dicts with source_id and target_id for currently active RustDesk connections."""
+    query = """
+    SELECT source_id, target_id FROM audit_logs
+    WHERE conn_id IN (
+        SELECT conn_id FROM audit_logs 
+        GROUP BY conn_id 
+        HAVING SUM(CASE WHEN action IN ('new_conn', 'connect') THEN 1 ELSE 0 END) > 0 
+           AND SUM(CASE WHEN action = 'close_conn' THEN 1 ELSE 0 END) = 0
+    ) AND target_id != ''
+    GROUP BY conn_id
+    """
+    with get_db() as conn:
+        return [dict(row) for row in conn.execute(query).fetchall()]
 
 
 # ─── Dashboard Stats ───
@@ -366,8 +412,25 @@ def get_dashboard_stats():
             "online_devices": online_devices,
             "total_users": total_users,
             "connections_today": connections_today,
-            "active_sessions": active_sessions,
+            "active_sessions": active_sessions
         }
+
+
+# ─── Endpoints (Devices) ───
+
+def update_device_monitoring(device_id: str, custom_name: str, check_ping: int, check_rdp: int, rdp_port: int):
+    with get_db() as conn:
+        conn.execute(
+            "UPDATE devices SET custom_name = ?, check_ping = ?, check_rdp = ?, rdp_port = ? WHERE id = ?",
+            (custom_name, check_ping, check_rdp, rdp_port, device_id)
+        )
+
+def update_device_status_ping_rdp(device_id: str, status_ping: str, status_rdp: str):
+    with get_db() as conn:
+        conn.execute(
+            "UPDATE devices SET status_ping = ?, status_rdp = ? WHERE id = ?",
+            (status_ping, status_rdp, device_id)
+        )
 
 
 if __name__ == "__main__":

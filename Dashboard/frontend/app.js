@@ -93,6 +93,7 @@ function showDashboard() {
     refreshConnections();
     refreshAudit();
     refreshLogs();
+    refreshEndpoints();
     connectWebSocket();
     checkServerProcesses();
     startAutoRefresh();
@@ -127,9 +128,7 @@ async function apiFetch(path, options = {}) {
 async function refreshDashboard() {
     try {
         const data = await apiFetch('/admin/api/dashboard');
-        document.getElementById('kpiOnline').textContent = data.online_devices || 0;
-        document.getElementById('kpiTotal').textContent = data.total_devices || 0;
-        document.getElementById('kpiConnections').textContent = data.connections_today || 0;
+
 
         uptimeSeconds = data.server_uptime || 0;
         updateUptimeDisplay();
@@ -209,7 +208,7 @@ async function refreshDevices() {
         const data = await apiFetch('/admin/api/devices');
         devices = data.devices || [];
         renderDevices(devices);
-        renderTopology(devices);
+
     } catch (err) {
         console.error('Devices refresh error:', err);
     }
@@ -395,10 +394,7 @@ function connectWebSocket() {
 function handleWsMessage(msg) {
     if (msg.type === 'stats' || msg.type === 'update') {
         const stats = msg.stats || msg.data || {};
-        document.getElementById('kpiOnline').textContent = stats.online_devices || 0;
-        document.getElementById('kpiTotal').textContent = stats.total_devices || 0;
-        document.getElementById('kpiConnections').textContent = stats.connections_today || 0;
-
+        
         if (stats.server_uptime) {
             uptimeSeconds = stats.server_uptime;
         }
@@ -406,7 +402,12 @@ function handleWsMessage(msg) {
         if (msg.devices) {
             devices = msg.devices;
             renderDevices(devices);
-            renderTopology(devices);
+        }
+
+
+
+        if (msg.endpoints) {
+            renderEndpoints(msg.endpoints);
         }
     }
 
@@ -429,9 +430,11 @@ function handleWsMessage(msg) {
 
         // Also update server log tab
         const logEl = document.getElementById('serverLog');
-        logEl.insertAdjacentHTML('afterbegin', html);
-        while (logEl.children.length > MAX_LOG_DISPLAY) {
-            logEl.removeChild(logEl.lastChild);
+        if (logEl) {
+            logEl.insertAdjacentHTML('afterbegin', html);
+            while (logEl.children.length > MAX_LOG_DISPLAY) {
+                logEl.removeChild(logEl.lastChild);
+            }
         }
     }
 }
@@ -439,161 +442,102 @@ function handleWsMessage(msg) {
 const MAX_LOG_DISPLAY = 200;
 
 // ═══════════════════════════════════════════════════════════════
-// Network Topology — Force-Directed Canvas
+// Endpoints Management
 // ═══════════════════════════════════════════════════════════════
 
-let topoAnimFrame = null;
-let topoFrameCount = 0;
-let topoDevices = [];
+let allDevices = [];
 
-function renderTopology(deviceList) {
-    const container = document.getElementById('topologyContainer');
-    const canvas = document.getElementById('topologyCanvas');
-    const emptyEl = document.getElementById('topologyEmpty');
-
-    if (!deviceList || deviceList.length === 0) {
-        emptyEl.style.display = '';
-        if (topoAnimFrame) { cancelAnimationFrame(topoAnimFrame); topoAnimFrame = null; }
-        return;
-    }
-    emptyEl.style.display = 'none';
-    topoDevices = deviceList;
-
-    const rect = container.getBoundingClientRect();
-    const W = rect.width;
-    const H = rect.height;
-    canvas.width = W * window.devicePixelRatio;
-    canvas.height = H * window.devicePixelRatio;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
-
-    if (!topoAnimFrame) {
-        topoFrameCount = 0;
-        drawTopology();
+async function refreshEndpoints() {
+    try {
+        const data = await apiFetch('/admin/api/endpoints');
+        if (data.endpoints) {
+            allDevices = data.endpoints;
+            renderEndpoints(allDevices);
+        }
+    } catch (err) {
+        console.error('Endpoints refresh error:', err);
     }
 }
 
-function drawTopology() {
-    const canvas = document.getElementById('topologyCanvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const W = canvas.width / window.devicePixelRatio;
-    const H = canvas.height / window.devicePixelRatio;
-    ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
-
-    topoFrameCount++;
-    ctx.clearRect(0, 0, W, H);
-
-    const centerX = W / 2;
-    const centerY = H / 2;
-    const orbitRadius = Math.min(W, H) * 0.32;
-    const list = topoDevices;
-    const n = list.length;
-
-    // ── Draw edges from server to each device ──
-    for (let i = 0; i < n; i++) {
-        const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
-        const nx = centerX + Math.cos(angle) * orbitRadius;
-        const ny = centerY + Math.sin(angle) * orbitRadius;
-        const isOnline = list[i].status === 'online';
-
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(nx, ny);
-        ctx.strokeStyle = isOnline ? 'rgba(6, 182, 212, 0.3)' : 'rgba(100, 116, 139, 0.12)';
-        ctx.lineWidth = isOnline ? 1.5 : 0.8;
-        ctx.stroke();
-
-        // Animated pulse traveling along the edge
-        if (isOnline) {
-            const t = ((topoFrameCount * 1.2 + i * 80) % 300) / 300;
-            const px = centerX + (nx - centerX) * t;
-            const py = centerY + (ny - centerY) * t;
-            ctx.beginPath();
-            ctx.arc(px, py, 2.5, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(6, 182, 212, ${0.9 - t * 0.6})`;
-            ctx.fill();
-        }
+function renderEndpoints(endpoints) {
+    const body = document.getElementById('endpointsBody');
+    if (!endpoints || !endpoints.length) {
+        body.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon">📖</div><p>No devices connected yet.</p></div></td></tr>`;
+        return;
     }
 
-    // ── Draw server node (center) ──
-    const pulse = 14 + Math.sin(topoFrameCount * 0.03) * 3;
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, 26, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(139, 92, 246, 0.08)';
-    ctx.fill();
-
-    ctx.shadowColor = 'rgba(139, 92, 246, 0.5)';
-    ctx.shadowBlur = pulse;
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, 20, 0, Math.PI * 2);
-    ctx.fillStyle = '#7c3aed';
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 14px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('S', centerX, centerY);
-
-    ctx.fillStyle = '#c4b5fd';
-    ctx.font = '600 10px Inter, sans-serif';
-    ctx.textBaseline = 'top';
-    ctx.fillText('Server', centerX, centerY + 28);
-
-    // ── Draw device nodes (fixed positions around the circle) ──
-    for (let i = 0; i < n; i++) {
-        const d = list[i];
-        const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
-        const nx = centerX + Math.cos(angle) * orbitRadius;
-        const ny = centerY + Math.sin(angle) * orbitRadius;
-        const r = 16;
-        const isOnline = d.status === 'online';
-
-        // Glow for online
-        if (isOnline) {
-            ctx.shadowColor = 'rgba(6, 182, 212, 0.4)';
-            ctx.shadowBlur = 12;
+    body.innerHTML = endpoints.map(ep => {
+        let statusBadge = '<span class="badge badge-offline">Unknown</span>';
+        if (ep.status_ping === 'online' || ep.status_rdp === 'online') {
+            statusBadge = '<span class="badge badge-online">Online</span>';
+        } else if (ep.status_ping === 'offline' || ep.status_rdp === 'offline') {
+            statusBadge = '<span class="badge badge-offline">Offline</span>';
         }
 
-        // Outer ring
-        ctx.beginPath();
-        ctx.arc(nx, ny, r, 0, Math.PI * 2);
-        ctx.fillStyle = isOnline ? 'rgba(6, 182, 212, 0.1)' : 'rgba(71, 85, 105, 0.1)';
-        ctx.fill();
-
-        // Inner circle
-        ctx.beginPath();
-        ctx.arc(nx, ny, r - 4, 0, Math.PI * 2);
-        ctx.fillStyle = isOnline ? '#06b6d4' : '#475569';
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        // PC icon
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 9px Inter, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('PC', nx, ny);
-
-        // Hostname label (primary)
-        const hostname = d.hostname || d.id || '?';
-        const shortName = hostname.length > 18 ? hostname.slice(0, 16) + '..' : hostname;
-        ctx.textBaseline = 'top';
-        ctx.fillStyle = isOnline ? '#e2e8f0' : '#64748b';
-        ctx.font = '600 10px Inter, sans-serif';
-        ctx.fillText(shortName, nx, ny + r + 6);
-
-        // IP sublabel
-        if (d.ip) {
-            ctx.fillStyle = '#64748b';
-            ctx.font = '9px JetBrains Mono, monospace';
-            ctx.fillText(d.ip, nx, ny + r + 20);
+        let busyBadge = '';
+        if (ep.connected_to) {
+            const targetLabel = ep.connected_to_name && ep.connected_to_name !== ep.connected_to ? `${ep.connected_to} (${ep.connected_to_name})` : ep.connected_to;
+            busyBadge = `<span class="badge badge-busy">Controlling ${targetLabel}</span>`;
+        } else if (ep.connected_from) {
+            const sourceLabel = ep.connected_from_name && ep.connected_from_name !== ep.connected_from ? `${ep.connected_from} (${ep.connected_from_name})` : ep.connected_from;
+            busyBadge = `<span class="badge badge-busy">Controlled by ${sourceLabel}</span>`;
         }
+
+        const displayName = ep.custom_name ? ep.custom_name : (ep.hostname || 'localhost');
+
+        return `
+            <tr>
+                <td><div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">${statusBadge}${busyBadge}</div></td>
+                <td><strong>${esc(displayName)}</strong></td>
+                <td class="mono">${esc(ep.id || '—')} 
+                    ${ep.id ? `<button class="btn btn-sm" style="padding: 2px 6px" onclick="navigator.clipboard.writeText('${ep.id}')">Copy</button>` : ''}
+                </td>
+                <td class="mono">${esc(ep.ip || '—')} ${ep.check_rdp ? `(:${ep.rdp_port})` : ''}</td>
+                <td class="text-right">
+                    <button class="btn btn-sm btn-secondary" onclick="openEndpointModal('${ep.id}')">Edit</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function openEndpointModal(deviceId) {
+    const ep = allDevices.find(d => d.id === deviceId);
+    if (!ep) return;
+    
+    document.getElementById('epDeviceId').value = ep.id;
+    document.getElementById('epName').value = ep.custom_name || '';
+    document.getElementById('epCheckPing').checked = !!ep.check_ping;
+    document.getElementById('epCheckRdp').checked = !!ep.check_rdp;
+    document.getElementById('epRdpPort').value = ep.rdp_port || 3389;
+    
+    document.getElementById('endpointModal').style.display = 'flex';
+}
+
+function closeEndpointModal() {
+    document.getElementById('endpointModal').style.display = 'none';
+    document.getElementById('endpointForm').reset();
+}
+
+async function handleEndpointSubmit(e) {
+    e.preventDefault();
+    const deviceId = document.getElementById('epDeviceId').value;
+    const payload = {
+        custom_name: document.getElementById('epName').value,
+        check_ping: document.getElementById('epCheckPing').checked,
+        check_rdp: document.getElementById('epCheckRdp').checked,
+        rdp_port: parseInt(document.getElementById('epRdpPort').value) || 3389
+    };
+    try {
+        await apiFetch(`/admin/api/endpoints/${deviceId}`, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+        closeEndpointModal();
+        refreshEndpoints();
+    } catch (err) {
+        alert('Error saving monitoring settings: ' + err.message);
     }
-
-    topoAnimFrame = requestAnimationFrame(drawTopology);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -649,8 +593,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // Handle topology resize
     window.addEventListener('resize', () => {
         if (devices.length > 0) {
-            if (topoAnimFrame) { cancelAnimationFrame(topoAnimFrame); topoAnimFrame = null; }
-            renderTopology(devices);
+
         }
     });
 });

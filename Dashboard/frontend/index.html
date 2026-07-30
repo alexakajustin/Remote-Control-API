@@ -74,36 +74,31 @@
 
     <!-- ─── Overview Tab ─── -->
     <div class="tab-panel active" id="tab-overview">
-        <div class="kpi-grid">
-            <div class="kpi-card cyan">
-                <div class="kpi-label">Online Devices</div>
-                <div class="kpi-value" id="kpiOnline">0</div>
+
+
+        <!-- Address Book & Monitored Endpoints -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">📖 Address Book & Endpoint Monitor</span>
             </div>
-            <div class="kpi-card emerald">
-                <div class="kpi-label">Total Devices</div>
-                <div class="kpi-value" id="kpiTotal">0</div>
-            </div>
-            <div class="kpi-card amber">
-                <div class="kpi-label">Connections Today</div>
-                <div class="kpi-value" id="kpiConnections">0</div>
+            <div class="section-body no-pad">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Status (Ping/RDP)</th>
+                            <th>Name</th>
+                            <th>RustDesk ID</th>
+                            <th>Local IP</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="endpointsBody">
+                        <tr><td colspan="5"><div class="empty-state"><div class="icon">📖</div><p>No devices connected yet.</p></div></td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- Network Topology -->
-        <div class="section">
-            <div class="section-header">
-                <span class="section-title">🌐 Network Topology</span>
-            </div>
-            <div class="section-body no-pad">
-                <div class="topology-container" id="topologyContainer">
-                    <canvas id="topologyCanvas"></canvas>
-                    <div class="topology-empty" id="topologyEmpty">
-                        <div class="icon">🌐</div>
-                        <p>Devices will appear here when they connect</p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Recent Activity -->
         <div class="section">
@@ -221,6 +216,38 @@
             <div class="section-body no-pad">
                 <div class="log-terminal" id="serverLog"></div>
             </div>
+        </div>
+    </div>
+
+
+    
+    <!-- ═══ Endpoint Modal ═══ -->
+    <div class="login-overlay" id="endpointModal" style="display:none; z-index: 1000;">
+        <div class="login-card" style="width: 400px;">
+            <h2>Edit Monitoring</h2>
+            <form id="endpointForm" onsubmit="handleEndpointSubmit(event)">
+                <input type="hidden" id="epDeviceId">
+                <div class="form-group">
+                    <label>Name (leave blank for hostname)</label>
+                    <input type="text" id="epName" placeholder="e.g. Laptop Alina">
+                </div>
+                <div class="form-group" style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+                    <input type="checkbox" id="epCheckPing" checked>
+                    <label for="epCheckPing" style="margin:0;">Monitor Ping (ICMP)</label>
+                </div>
+                <div class="form-group" style="display:flex; gap:10px; align-items:center;">
+                    <input type="checkbox" id="epCheckRdp">
+                    <label for="epCheckRdp" style="margin:0;">Monitor RDP Port</label>
+                </div>
+                <div class="form-group">
+                    <label>RDP Port</label>
+                    <input type="number" id="epRdpPort" value="3389">
+                </div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" style="flex:1" onclick="closeEndpointModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="flex:1">Save</button>
+                </div>
+            </form>
         </div>
     </div>
 

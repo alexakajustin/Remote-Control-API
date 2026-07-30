@@ -68,6 +68,68 @@ async def broadcast_ws(data: dict):
     ws_clients.difference_update(dead)
 
 
+GLOBAL_HEALTH = {
+    "isp_ping": "unknown",
+    "rustdesk_services": "unknown",
+    "last_check": 0
+}
+
+async def ping_ip(ip: str) -> bool:
+    try:
+        cmd = ["ping", "-n", "1", "-w", "1000", ip] if os.name == 'nt' else ["ping", "-c", "1", "-W", "1", ip]
+        proc = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
+        await proc.wait()
+        return proc.returncode == 0
+    except Exception:
+        return False
+
+async def check_tcp_port(ip: str, port: int, timeout: int = 2) -> bool:
+    try:
+        reader, writer = await asyncio.wait_for(asyncio.open_connection(ip, port), timeout=timeout)
+        writer.close()
+        await writer.wait_closed()
+        return True
+    except Exception:
+        return False
+
+async def health_checker():
+    """Background task to check system health and monitored endpoints."""
+    while True:
+        try:
+            # Check ISP
+            isp_ok = await ping_ip("1.1.1.1") or await ping_ip("8.8.8.8")
+            GLOBAL_HEALTH["isp_ping"] = "online" if isp_ok else "offline"
+            
+            # Check RustDesk local services (hbbs 21115, hbbr 21116)
+            # Just check one for simplicity, or both
+            hbbs_ok = await check_tcp_port("127.0.0.1", 21115)
+            GLOBAL_HEALTH["rustdesk_services"] = "online" if hbbs_ok else "offline"
+            GLOBAL_HEALTH["last_check"] = time.time()
+            
+            # Check monitored endpoints
+            endpoints = db.get_all_devices()
+            for ep in endpoints:
+                ip = ep["ip"]
+                if not ip:
+                    continue
+                
+                status_ping = ep["status_ping"]
+                status_rdp = ep["status_rdp"]
+                
+                if ep["check_ping"]:
+                    status_ping = "online" if await ping_ip(ip) else "offline"
+                
+                if ep["check_rdp"] and ep["rdp_port"]:
+                    status_rdp = "online" if await check_tcp_port(ip, ep["rdp_port"]) else "offline"
+                
+                db.update_device_status_ping_rdp(ep["id"], status_ping, status_rdp)
+                
+        except Exception as e:
+            logger.error(f"Health checker error: {e}")
+        
+        await asyncio.sleep(30)
+
+
 async def heartbeat_checker():
     """Background task to mark stale devices as offline."""
     while True:
@@ -93,12 +155,14 @@ async def lifespan(app: FastAPI):
         logger.info("Created default admin user: admin / admin123")
 
     # Start background heartbeat checker
-    task = asyncio.create_task(heartbeat_checker())
+    task1 = asyncio.create_task(heartbeat_checker())
+    task2 = asyncio.create_task(health_checker())
     add_log_event("server", "RustDesk API Server started")
 
     yield
 
-    task.cancel()
+    task1.cancel()
+    task2.cancel()
     logger.info("Server shutting down")
 
 
@@ -420,13 +484,25 @@ async def api_audit_conn(request: Request):
     logger.info(f"Audit conn payload: {json.dumps(body)}")
 
     action = body.get("action", "")
+
+    # Parse 'peer' properly (can be a list like ['495722693', 'Alex'])
+    peer_raw = body.get("peer_id", "") or body.get("peer", "")
+    peer_id = peer_raw[0] if isinstance(peer_raw, list) and len(peer_raw) > 0 else (peer_raw if isinstance(peer_raw, str) else str(peer_raw))
+    
     device_id = body.get("id", "") or body.get("Id", "") or body.get("peer_id", "")
     conn_id = str(body.get("conn_id", "") or body.get("connId", ""))
     session_id = body.get("session_id", "") or body.get("sessionId", "")
-    peer_id = body.get("peer_id", "") or body.get("peer", "")
     from_id = body.get("from", "") or body.get("from_id", "") or device_id
     from_ip = body.get("from_ip", "") or body.get("ip", "")
     to_id = body.get("to", "") or body.get("to_id", "") or peer_id
+
+    # For new_conn and close_conn, the target isn't sent. Look it up from DB using conn_id.
+    if not to_id and conn_id:
+        with db.get_db() as conn:
+            row = conn.execute("SELECT target_id FROM audit_logs WHERE conn_id = ? AND target_id != '' ORDER BY id DESC LIMIT 1", (conn_id,)).fetchone()
+            if row:
+                to_id = row[0]
+
     to_ip = body.get("to_ip", "")
     note = body.get("note", "") or body.get("type", "")
 
@@ -614,6 +690,51 @@ async def admin_audit_logs(request: Request):
     return JSONResponse(content={"logs": result})
 
 
+@app.get("/admin/api/health")
+async def admin_health(request: Request):
+    """Get system health status for dashboard."""
+    require_admin(request)
+    return JSONResponse(content=GLOBAL_HEALTH)
+
+@app.get("/admin/api/endpoints")
+async def admin_get_endpoints(request: Request):
+    """Get monitored endpoints (devices) with active connection status."""
+    require_admin(request)
+    endpoints = db.get_all_devices()
+    active_conns = db.get_active_connections()
+    
+    # Create quick lookups
+    device_names = {ep["id"]: (ep.get("custom_name") or ep.get("hostname") or ep["id"]) for ep in endpoints}
+    busy_sources = {c["source_id"]: c["target_id"] for c in active_conns}
+    busy_targets = {c["target_id"]: c["source_id"] for c in active_conns}
+    
+    for ep in endpoints:
+        ep_id = ep["id"]
+        target_id = busy_sources.get(ep_id)
+        source_id = busy_targets.get(ep_id)
+        
+        ep["connected_to"] = target_id
+        ep["connected_to_name"] = device_names.get(target_id, target_id) if target_id else None
+        
+        ep["connected_from"] = source_id
+        ep["connected_from_name"] = device_names.get(source_id, source_id) if source_id else None
+
+    return JSONResponse(content={"endpoints": endpoints})
+
+@app.post("/admin/api/endpoints/{device_id}")
+async def admin_update_endpoint(device_id: str, request: Request):
+    require_admin(request)
+    body = await request.json()
+    db.update_device_monitoring(
+        device_id=device_id,
+        custom_name=body.get("custom_name", ""),
+        check_ping=1 if body.get("check_ping") else 0,
+        check_rdp=1 if body.get("check_rdp") else 0,
+        rdp_port=int(body.get("rdp_port", 3389) or 3389)
+    )
+    return JSONResponse(content={"success": True})
+
+
 @app.get("/admin/api/logs")
 async def admin_event_logs(request: Request):
     """Get in-memory event logs for dashboard."""
@@ -649,10 +770,27 @@ async def websocket_live(websocket: WebSocket):
                 "version": d["version"],
             } for d in devices]
 
+            # Fetch endpoints and active connections for the websocket update
+            endpoints = db.get_all_devices()
+            active_conns = db.get_active_connections()
+            device_names = {ep["id"]: (ep.get("custom_name") or ep.get("hostname") or ep["id"]) for ep in endpoints}
+            busy_sources = {c["source_id"]: c["target_id"] for c in active_conns}
+            busy_targets = {c["target_id"]: c["source_id"] for c in active_conns}
+            for ep in endpoints:
+                ep_id = ep["id"]
+                target_id = busy_sources.get(ep_id)
+                source_id = busy_targets.get(ep_id)
+                ep["connected_to"] = target_id
+                ep["connected_to_name"] = device_names.get(target_id, target_id) if target_id else None
+                ep["connected_from"] = source_id
+                ep["connected_from_name"] = device_names.get(source_id, source_id) if source_id else None
+
             await websocket.send_text(json.dumps({
                 "type": "update",
                 "stats": stats,
                 "devices": device_list,
+                "health": GLOBAL_HEALTH,
+                "endpoints": endpoints
             }))
     except WebSocketDisconnect:
         pass
