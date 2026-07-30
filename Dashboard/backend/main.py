@@ -116,8 +116,10 @@ async def health_checker():
                 status_ping = ep["status_ping"]
                 status_rdp = ep["status_rdp"]
                 
-                if ep["check_ping"]:
+                if ep.get("check_ping", 1):
                     status_ping = "online" if await ping_ip(ip) else "offline"
+                else:
+                    status_ping = "unknown"
                 
                 if ep["check_rdp"] and ep["rdp_port"]:
                     status_rdp = "online" if await check_tcp_port(ip, ep["rdp_port"]) else "offline"
@@ -127,7 +129,7 @@ async def health_checker():
         except Exception as e:
             logger.error(f"Health checker error: {e}")
         
-        await asyncio.sleep(30)
+        await asyncio.sleep(10)
 
 
 async def heartbeat_checker():
@@ -705,19 +707,35 @@ async def admin_get_endpoints(request: Request):
     
     # Create quick lookups
     device_names = {ep["id"]: (ep.get("custom_name") or ep.get("hostname") or ep["id"]) for ep in endpoints}
-    busy_sources = {c["source_id"]: c["target_id"] for c in active_conns}
-    busy_targets = {c["target_id"]: c["source_id"] for c in active_conns}
+    busy_sources = {c["source_id"]: (c["target_id"], c.get("note", "")) for c in active_conns}
+    busy_targets = {c["target_id"]: (c["source_id"], c.get("note", "")) for c in active_conns}
     
+    type_map = {"0": "Desktop", "1": "File Transfer", "2": "RDP", "3": "Direct IP", "4": "RDP"}
+
     for ep in endpoints:
         ep_id = ep["id"]
-        target_id = busy_sources.get(ep_id)
-        source_id = busy_targets.get(ep_id)
+        target_tuple = busy_sources.get(ep_id)
+        source_tuple = busy_targets.get(ep_id)
         
-        ep["connected_to"] = target_id
-        ep["connected_to_name"] = device_names.get(target_id, target_id) if target_id else None
-        
-        ep["connected_from"] = source_id
-        ep["connected_from_name"] = device_names.get(source_id, source_id) if source_id else None
+        if target_tuple:
+            target_id, raw_type = target_tuple
+            ep["connected_to"] = target_id
+            ep["connected_to_name"] = device_names.get(target_id, target_id)
+            ep["connected_to_type"] = type_map.get(str(raw_type), raw_type or "Session")
+        else:
+            ep["connected_to"] = None
+            ep["connected_to_name"] = None
+            ep["connected_to_type"] = None
+            
+        if source_tuple:
+            source_id, raw_type = source_tuple
+            ep["connected_from"] = source_id
+            ep["connected_from_name"] = device_names.get(source_id, source_id)
+            ep["connected_from_type"] = type_map.get(str(raw_type), raw_type or "Session")
+        else:
+            ep["connected_from"] = None
+            ep["connected_from_name"] = None
+            ep["connected_from_type"] = None
 
     return JSONResponse(content={"endpoints": endpoints})
 
@@ -774,16 +792,34 @@ async def websocket_live(websocket: WebSocket):
             endpoints = db.get_all_devices()
             active_conns = db.get_active_connections()
             device_names = {ep["id"]: (ep.get("custom_name") or ep.get("hostname") or ep["id"]) for ep in endpoints}
-            busy_sources = {c["source_id"]: c["target_id"] for c in active_conns}
-            busy_targets = {c["target_id"]: c["source_id"] for c in active_conns}
+            busy_sources = {c["source_id"]: (c["target_id"], c.get("note", "")) for c in active_conns}
+            busy_targets = {c["target_id"]: (c["source_id"], c.get("note", "")) for c in active_conns}
+            type_map = {"0": "Desktop", "1": "File Transfer", "2": "RDP", "3": "Direct IP", "4": "RDP"}
+
             for ep in endpoints:
                 ep_id = ep["id"]
-                target_id = busy_sources.get(ep_id)
-                source_id = busy_targets.get(ep_id)
-                ep["connected_to"] = target_id
-                ep["connected_to_name"] = device_names.get(target_id, target_id) if target_id else None
-                ep["connected_from"] = source_id
-                ep["connected_from_name"] = device_names.get(source_id, source_id) if source_id else None
+                target_tuple = busy_sources.get(ep_id)
+                source_tuple = busy_targets.get(ep_id)
+                
+                if target_tuple:
+                    target_id, raw_type = target_tuple
+                    ep["connected_to"] = target_id
+                    ep["connected_to_name"] = device_names.get(target_id, target_id)
+                    ep["connected_to_type"] = type_map.get(str(raw_type), raw_type or "Session")
+                else:
+                    ep["connected_to"] = None
+                    ep["connected_to_name"] = None
+                    ep["connected_to_type"] = None
+                    
+                if source_tuple:
+                    source_id, raw_type = source_tuple
+                    ep["connected_from"] = source_id
+                    ep["connected_from_name"] = device_names.get(source_id, source_id)
+                    ep["connected_from_type"] = type_map.get(str(raw_type), raw_type or "Session")
+                else:
+                    ep["connected_from"] = None
+                    ep["connected_from_name"] = None
+                    ep["connected_from_type"] = None
 
             await websocket.send_text(json.dumps({
                 "type": "update",

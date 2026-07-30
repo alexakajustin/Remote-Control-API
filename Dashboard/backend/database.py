@@ -373,9 +373,9 @@ def get_connection_audit_logs(limit: int = 50):
         return [dict(row) for row in conn.execute("SELECT * FROM audit_logs WHERE action IN ('new_conn', 'close_conn', 'connect') ORDER BY timestamp DESC LIMIT ?", (limit,)).fetchall()]
 
 def get_active_connections():
-    """Returns a list of dicts with source_id and target_id for currently active RustDesk connections."""
+    """Returns a list of dicts with source_id, target_id, note for currently active RustDesk connections."""
     query = """
-    SELECT source_id, target_id FROM audit_logs
+    SELECT source_id, target_id, note FROM audit_logs
     WHERE conn_id IN (
         SELECT conn_id FROM audit_logs 
         GROUP BY conn_id 

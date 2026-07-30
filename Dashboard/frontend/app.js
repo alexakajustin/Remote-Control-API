@@ -467,27 +467,46 @@ function renderEndpoints(endpoints) {
     }
 
     body.innerHTML = endpoints.map(ep => {
-        let statusBadge = '<span class="badge badge-offline">Unknown</span>';
-        if (ep.status_ping === 'online' || ep.status_rdp === 'online') {
-            statusBadge = '<span class="badge badge-online">Online</span>';
-        } else if (ep.status_ping === 'offline' || ep.status_rdp === 'offline') {
-            statusBadge = '<span class="badge badge-offline">Offline</span>';
+        let rustdeskBadge = ep.status === 'online'
+            ? '<span class="badge badge-online">RustDesk Online</span>'
+            : '<span class="badge badge-offline">RustDesk Offline</span>';
+
+        let pingBadge = '';
+        if (ep.check_ping !== 0) {
+            if (ep.status_ping === 'online') {
+                pingBadge = '<span class="badge badge-online">Ping OK</span>';
+            } else if (ep.status_ping === 'offline') {
+                pingBadge = '<span class="badge badge-busy">Ping Fail</span>';
+            } else {
+                pingBadge = '<span class="badge badge-offline">Ping Checking...</span>';
+            }
+        }
+
+        let rdpBadge = '';
+        if (ep.check_rdp) {
+            if (ep.status_rdp === 'online') {
+                rdpBadge = `<span class="badge badge-online" style="border-color: rgba(6, 182, 212, 0.4); color: var(--accent-cyan);">RDP :${ep.rdp_port || 3389} Open</span>`;
+            } else if (ep.status_rdp === 'offline') {
+                rdpBadge = `<span class="badge badge-offline">RDP :${ep.rdp_port || 3389} Down</span>`;
+            }
         }
 
         let busyBadge = '';
         if (ep.connected_to) {
             const targetLabel = ep.connected_to_name && ep.connected_to_name !== ep.connected_to ? `${ep.connected_to} (${ep.connected_to_name})` : ep.connected_to;
-            busyBadge = `<span class="badge badge-busy">Controlling ${targetLabel}</span>`;
+            const mode = ep.connected_to_type ? ` [${ep.connected_to_type}]` : '';
+            busyBadge = `<span class="badge badge-busy">Controlling ${targetLabel}${mode}</span>`;
         } else if (ep.connected_from) {
             const sourceLabel = ep.connected_from_name && ep.connected_from_name !== ep.connected_from ? `${ep.connected_from} (${ep.connected_from_name})` : ep.connected_from;
-            busyBadge = `<span class="badge badge-busy">Controlled by ${sourceLabel}</span>`;
+            const mode = ep.connected_from_type ? ` [${ep.connected_from_type}]` : '';
+            busyBadge = `<span class="badge badge-busy">Controlled by ${sourceLabel}${mode}</span>`;
         }
 
         const displayName = ep.custom_name ? ep.custom_name : (ep.hostname || 'localhost');
 
         return `
             <tr>
-                <td><div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">${statusBadge}${busyBadge}</div></td>
+                <td><div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">${rustdeskBadge}${pingBadge}${rdpBadge}${busyBadge}</div></td>
                 <td><strong>${esc(displayName)}</strong></td>
                 <td class="mono">${esc(ep.id || '—')} 
                     ${ep.id ? `<button class="btn btn-sm" style="padding: 2px 6px" onclick="navigator.clipboard.writeText('${ep.id}')">Copy</button>` : ''}

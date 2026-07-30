@@ -38,3 +38,34 @@
 [2026-07-30 12:02:33.142689 +03:00] INFO [src\relay_server.rs:125] LIMIT_SPEED: 32Mb/s
 [2026-07-30 12:02:33.142692 +03:00] INFO [src\relay_server.rs:136] TOTAL_BANDWIDTH: 1024Mb/s
 [2026-07-30 12:02:33.142695 +03:00] INFO [src\relay_server.rs:146] SINGLE_BANDWIDTH: 128Mb/s
+[2026-07-30 13:23:11.700179 +03:00] INFO [src\relay_server.rs:453] New relay request cf127d81-079a-432f-932b-347aa240c793 from [::ffff:192.168.99.97]:43319
+[2026-07-30 13:23:11.702079 +03:00] INFO [src\relay_server.rs:437] Relayrequest cf127d81-079a-432f-932b-347aa240c793 from [::ffff:192.168.99.93]:50723 got paired
+[2026-07-30 13:23:11.702104 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 13:29:37.630409 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.93]:50723 closed
+[2026-07-30 13:36:59.355806 +03:00] INFO [src\relay_server.rs:453] New relay request 77364566-cadc-4b6f-8e18-3b1bbee83d3b from [::ffff:192.168.99.97]:45935
+[2026-07-30 13:36:59.360533 +03:00] INFO [src\relay_server.rs:437] Relayrequest 77364566-cadc-4b6f-8e18-3b1bbee83d3b from [::ffff:192.168.99.93]:50921 got paired
+[2026-07-30 13:36:59.360550 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 13:38:53.987939 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.93]:50921 closed
+[2026-07-30 13:45:12.338651 +03:00] INFO [src\relay_server.rs:453] New relay request 6a556799-aead-41a4-972b-35c6e26336c3 from [::ffff:192.168.99.97]:42843
+[2026-07-30 13:45:12.351072 +03:00] INFO [src\relay_server.rs:437] Relayrequest 6a556799-aead-41a4-972b-35c6e26336c3 from [::ffff:192.168.99.93]:51009 got paired
+[2026-07-30 13:45:12.351112 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 13:45:31.508777 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.93]:51009 closed
+[2026-07-30 13:46:08.910034 +03:00] INFO [src\relay_server.rs:453] New relay request 2374086e-0474-47fa-8b5d-8f1fcd913cb7 from [::ffff:192.168.99.97]:39435
+[2026-07-30 13:46:08.924033 +03:00] INFO [src\relay_server.rs:437] Relayrequest 2374086e-0474-47fa-8b5d-8f1fcd913cb7 from [::ffff:192.168.99.93]:51025 got paired
+[2026-07-30 13:46:08.924049 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 13:46:13.334833 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.93]:51025 closed
+[2026-07-30 13:46:26.899699 +03:00] INFO [src\relay_server.rs:453] New relay request 91e7ccac-1e4e-4da3-be74-329fa32b1b0f from [::ffff:192.168.99.97]:37415
+[2026-07-30 13:46:26.912195 +03:00] INFO [src\relay_server.rs:437] Relayrequest 91e7ccac-1e4e-4da3-be74-329fa32b1b0f from [::ffff:192.168.99.93]:51033 got paired
+[2026-07-30 13:46:26.912218 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 13:46:49.747915 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.93]:51033 closed
+[2026-07-30 13:47:14.411690 +03:00] INFO [src\relay_server.rs:453] New relay request c214b47c-3196-44fd-ae5c-90f0fc77ef63 from [::ffff:192.168.99.97]:46109
+[2026-07-30 13:47:14.418214 +03:00] INFO [src\relay_server.rs:437] Relayrequest c214b47c-3196-44fd-ae5c-90f0fc77ef63 from [::ffff:192.168.99.93]:51049 got paired
+[2026-07-30 13:47:14.418229 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 13:47:19.533807 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.93]:51049 closed
+[2026-07-30 13:50:34.438920 +03:00] INFO [src\relay_server.rs:453] New relay request 8d9ed0a8-74f3-43a6-93e3-a7200690206c from [::ffff:192.168.99.97]:34151
+[2026-07-30 13:50:34.443605 +03:00] INFO [src\relay_server.rs:437] Relayrequest 8d9ed0a8-74f3-43a6-93e3-a7200690206c from [::ffff:192.168.99.92]:50752 got paired
+[2026-07-30 13:50:34.443626 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 13:50:56.337720 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.92]:50752 closed
+[2026-07-30 13:52:49.339136 +03:00] INFO [src\relay_server.rs:453] New relay request 871377f4-13d5-4e04-8271-91eba18f2884 from [::ffff:192.168.99.92]:50782
+[2026-07-30 13:52:49.341307 +03:00] INFO [src\relay_server.rs:437] Relayrequest 871377f4-13d5-4e04-8271-91eba18f2884 from [::ffff:192.168.99.97]:37723 got paired
+[2026-07-30 13:52:49.341321 +03:00] INFO [src\relay_server.rs:443] Both are raw
