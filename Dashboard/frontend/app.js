@@ -64,12 +64,16 @@ function handleLogout() {
     showLogin();
 }
 
+let currentTab = 'overview';
+let autoRefreshTimer = null;
+
 function showLogin() {
     document.getElementById('loginOverlay').classList.remove('hidden');
     document.getElementById('appHeader').style.display = 'none';
     document.getElementById('navTabs').style.display = 'none';
     document.getElementById('mainContent').style.display = 'none';
     if (uptimeInterval) clearInterval(uptimeInterval);
+    if (autoRefreshTimer) clearInterval(autoRefreshTimer);
 }
 
 function showDashboard() {
@@ -87,11 +91,11 @@ function showDashboard() {
     refreshDashboard();
     refreshDevices();
     refreshConnections();
-    refreshUsers();
     refreshAudit();
     refreshLogs();
     connectWebSocket();
     checkServerProcesses();
+    startAutoRefresh();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -126,7 +130,6 @@ async function refreshDashboard() {
         document.getElementById('kpiOnline').textContent = data.online_devices || 0;
         document.getElementById('kpiTotal').textContent = data.total_devices || 0;
         document.getElementById('kpiConnections').textContent = data.connections_today || 0;
-        document.getElementById('kpiSessions').textContent = data.active_sessions || 0;
 
         uptimeSeconds = data.server_uptime || 0;
         updateUptimeDisplay();
@@ -157,15 +160,44 @@ async function checkServerProcesses() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Tabs
+// Tabs & Auto Refresh
 // ═══════════════════════════════════════════════════════════════
 
 function switchTab(tab) {
+    currentTab = tab;
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.querySelector(`.nav-tab[data-tab="${tab}"]`).classList.add('active');
+    const targetNav = document.querySelector(`.nav-tab[data-tab="${tab}"]`);
+    if (targetNav) targetNav.classList.add('active');
 
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById(`tab-${tab}`).classList.add('active');
+    const targetPanel = document.getElementById(`tab-${tab}`);
+    if (targetPanel) targetPanel.classList.add('active');
+
+    // Instantly refresh tab on click
+    refreshActiveTab();
+}
+
+function refreshActiveTab() {
+    if (currentTab === 'overview') {
+        refreshDashboard();
+        refreshDevices();
+    } else if (currentTab === 'devices') {
+        refreshDevices();
+    } else if (currentTab === 'connections') {
+        refreshConnections();
+    } else if (currentTab === 'audit') {
+        refreshAudit();
+    } else if (currentTab === 'logs') {
+        refreshLogs();
+    }
+}
+
+function startAutoRefresh() {
+    if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+    // Auto refresh active tab every 3 seconds
+    autoRefreshTimer = setInterval(() => {
+        refreshActiveTab();
+    }, 3000);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -366,8 +398,6 @@ function handleWsMessage(msg) {
         document.getElementById('kpiOnline').textContent = stats.online_devices || 0;
         document.getElementById('kpiTotal').textContent = stats.total_devices || 0;
         document.getElementById('kpiConnections').textContent = stats.connections_today || 0;
-        document.getElementById('kpiUsers').textContent = stats.total_users || 0;
-        document.getElementById('kpiSessions').textContent = stats.active_sessions || 0;
 
         if (stats.server_uptime) {
             uptimeSeconds = stats.server_uptime;

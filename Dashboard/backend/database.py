@@ -299,15 +299,24 @@ def set_address_book(user_id: int, data: dict):
 
 def add_audit_log(action: str, source_id: str = "", source_ip: str = "", target_id: str = "",
                   target_ip: str = "", user_id: int = 0, conn_id: str = "", session_id: str = "",
-                  note: str = "", duration: int = 0, info: dict = None):
+                  note: str = "", duration: int = 0, info=None):
     now = time.time()
-    info_json = json.dumps(info or {})
+    info_json = json.dumps(info) if info is not None else "{}"
+    s_id = str(source_id) if not isinstance(source_id, (list, dict)) else json.dumps(source_id)
+    s_ip = str(source_ip) if not isinstance(source_ip, (list, dict)) else json.dumps(source_ip)
+    t_id = str(target_id) if not isinstance(target_id, (list, dict)) else json.dumps(target_id)
+    t_ip = str(target_ip) if not isinstance(target_ip, (list, dict)) else json.dumps(target_ip)
+    c_id = str(conn_id) if not isinstance(conn_id, (list, dict)) else json.dumps(conn_id)
+    sess_id = str(session_id) if not isinstance(session_id, (list, dict)) else json.dumps(session_id)
+    n_str = str(note) if not isinstance(note, (list, dict)) else json.dumps(note)
+    u_id = int(user_id) if isinstance(user_id, (int, float)) else 0
+
     with get_db() as conn:
         conn.execute("""
             INSERT INTO audit_logs (timestamp, action, source_id, source_ip, target_id, target_ip,
             user_id, conn_id, session_id, note, duration, info_json)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (now, action, source_id, source_ip, target_id, target_ip, user_id, conn_id, session_id, note, duration, info_json))
+        """, (now, str(action), s_id, s_ip, t_id, t_ip, u_id, c_id, sess_id, n_str, int(duration or 0), info_json))
 
 
 def get_audit_logs(limit: int = 100, offset: int = 0, action: str = None):
