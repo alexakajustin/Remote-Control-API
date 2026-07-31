@@ -98,3 +98,7 @@
 [2026-07-30 15:24:09.863939 +03:00] INFO [src\relay_server.rs:437] Relayrequest d6ad6081-0935-4f90-b849-59b7a60e131f from [::ffff:192.168.99.97]:39127 got paired
 [2026-07-30 15:24:09.863960 +03:00] INFO [src\relay_server.rs:443] Both are raw
 [2026-07-30 15:24:27.935870 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.97]:39127 closed
+[2026-07-30 16:34:29.058180 +03:00] INFO [src\relay_server.rs:453] New relay request 683353ca-9d0f-4d04-bce9-ac14f6512699 from [::ffff:192.168.99.97]:37653
+[2026-07-30 16:34:29.067160 +03:00] INFO [src\relay_server.rs:437] Relayrequest 683353ca-9d0f-4d04-bce9-ac14f6512699 from [::ffff:192.168.99.92]:50867 got paired
+[2026-07-30 16:34:29.067177 +03:00] INFO [src\relay_server.rs:443] Both are raw
+[2026-07-30 16:34:34.483688 +03:00] INFO [src\relay_server.rs:449] Relay of [::ffff:192.168.99.92]:50867 closed

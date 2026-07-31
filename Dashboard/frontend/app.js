@@ -407,11 +407,7 @@ function handleWsMessage(msg) {
 
 
         if (msg.endpoints) {
-            allDevices = msg.endpoints;
             renderEndpoints(msg.endpoints);
-        }
-        if (msg.active_conns) {
-            renderActiveConnections(msg.active_conns);
         }
     }
 
@@ -458,36 +454,9 @@ async function refreshEndpoints() {
             allDevices = data.endpoints;
             renderEndpoints(allDevices);
         }
-        if (data.active_conns) {
-            renderActiveConnections(data.active_conns);
-        }
     } catch (err) {
         console.error('Endpoints refresh error:', err);
     }
-}
-
-function renderActiveConnections(conns) {
-    const body = document.getElementById('activeConnectionsBody');
-    if (!conns || !conns.length) {
-        body.innerHTML = `<tr><td colspan="3"><div class="empty-state"><div class="icon">🔌</div><p>No active connections right now.</p></div></td></tr>`;
-        return;
-    }
-
-    const typeMap = {"0": "Desktop", "1": "File Transfer", "2": "RDP", "3": "Direct IP", "4": "RDP"};
-
-    body.innerHTML = conns.map(c => {
-        const sourceName = allDevices.find(d => d.id === c.source_id)?.hostname || c.source_id;
-        const targetName = allDevices.find(d => d.id === c.target_id)?.hostname || c.target_id;
-        const mode = typeMap[c.note] || c.note || "Session";
-        
-        return `
-            <tr>
-                <td><strong>${esc(sourceName)}</strong> <span class="mono text-muted">(${esc(c.source_id)})</span></td>
-                <td><strong>${esc(targetName)}</strong> <span class="mono text-muted">(${esc(c.target_id)})</span></td>
-                <td><span class="badge badge-action">${esc(mode)}</span></td>
-            </tr>
-        `;
-    }).join('');
 }
 
 function renderEndpoints(endpoints) {

@@ -737,7 +737,7 @@ async def admin_get_endpoints(request: Request):
             ep["connected_from_name"] = None
             ep["connected_from_type"] = None
 
-    return JSONResponse(content={"endpoints": endpoints, "active_conns": active_conns})
+    return JSONResponse(content={"endpoints": endpoints})
 
 @app.post("/admin/api/endpoints/{device_id}")
 async def admin_update_endpoint(device_id: str, request: Request):
@@ -826,8 +826,7 @@ async def websocket_live(websocket: WebSocket):
                 "stats": stats,
                 "devices": device_list,
                 "health": GLOBAL_HEALTH,
-                "endpoints": endpoints,
-                "active_conns": active_conns
+                "endpoints": endpoints
             }))
     except WebSocketDisconnect:
         pass

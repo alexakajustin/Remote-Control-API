@@ -374,18 +374,18 @@ def get_connection_audit_logs(limit: int = 50):
 
 def get_active_connections():
     """Returns a list of dicts with source_id, target_id, note for currently active RustDesk connections."""
+    # Consider active if the LAST action between source and target was 'new_conn' or 'connect'
+    # This prevents stuck connections if RustDesk drops a 'close_conn' for a specific conn_id
     query = """
-    SELECT a.source_id, a.target_id, a.note FROM audit_logs a
-    WHERE a.conn_id IN (
-        SELECT conn_id FROM audit_logs 
-        GROUP BY conn_id 
-        HAVING SUM(CASE WHEN action IN ('new_conn', 'connect') THEN 1 ELSE 0 END) > 0 
-           AND SUM(CASE WHEN action = 'close_conn' THEN 1 ELSE 0 END) = 0
-           AND MAX(timestamp) > (strftime('%s', 'now') - 86400)
-    ) AND a.target_id != ''
-    AND NOT EXISTS (SELECT 1 FROM devices d WHERE d.rustdesk_id = a.source_id AND d.status = 'offline')
-    AND NOT EXISTS (SELECT 1 FROM devices d WHERE d.rustdesk_id = a.target_id AND d.status = 'offline')
-    GROUP BY a.conn_id
+    SELECT source_id, target_id, note 
+    FROM audit_logs a
+    WHERE target_id != '' 
+      AND timestamp = (
+          SELECT MAX(timestamp) 
+          FROM audit_logs b 
+          WHERE b.source_id = a.source_id AND b.target_id = a.target_id
+      )
+      AND action IN ('new_conn', 'connect')
     """
     with get_db() as conn:
         return [dict(row) for row in conn.execute(query).fetchall()]
